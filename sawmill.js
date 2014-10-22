@@ -23,6 +23,7 @@ function run(nextToken) {
     nextToken: nextToken
   };
 
+  process.stdout.write('chop!');
   cloudwatchlogs.getLogEvents(params, function(err, log) {
     if(err) {
       console.error('saw failure!', err);
@@ -62,7 +63,7 @@ function run(nextToken) {
         process.stdout.write('buzz!');
       }
     });
-    console.log('chop!');
+    console.log('');
     wait(log.nextForwardToken, run);
   });
 }
@@ -70,7 +71,7 @@ function run(nextToken) {
 function wait(token, cb) {
   setTimeout(function() {
     cb(token);
-  }, 2000);
+  }, 3000);
 }
 
 console.log('starting the saws...');
