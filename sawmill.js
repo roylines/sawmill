@@ -23,7 +23,6 @@ function run(nextToken) {
     nextToken: nextToken
   };
 
-  console.log('buzz!');
   cloudwatchlogs.getLogEvents(params, function(err, log) {
     if(err) {
       console.error('saw failure!', err);
@@ -50,7 +49,7 @@ function run(nextToken) {
         var statusCodeHaproxyBucket = bucket(['statuscode', statuscode, haproxy].join('.'));
         var statusCodePrimaryHaproxyBucket = bucket(['statuscode', statuscode[0], 'all'].join('.'));
         metrics().increment([statusCodeBucket, statusCodeHaproxyBucket, statusCodePrimaryHaproxyBucket]);
-        process.stdout.write('*');
+        process.stdout.write('buzz!');
       }
 
       if (connections && connections.length) {
@@ -60,9 +59,10 @@ function run(nextToken) {
           backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
-        process.stdout.write('-');
+        process.stdout.write('buzz!');
       }
     });
+    console.log('chop!');
     wait(log.nextForwardToken, run);
   });
 }
