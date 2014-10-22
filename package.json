@@ -1,0 +1,38 @@
+{
+  "name": "sawmill",
+  "version": "0.0.1",
+  "description": "Cuts AWS logs into statsd pieces",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/B2MSolutions/sawmill.git"
+  },
+  "bin": {
+    "sawmill": "sawmill.js"
+  },
+  "keywords": [
+    "Logs",
+    "AWS",
+    "CloudWatch",
+    "Statsd"
+  ],
+  "author": "B2M Solutions",
+  "contributors": [
+    {
+      "name": "Roy Lines",
+      "url": "https://github.com/roylines"
+    },
+    {
+      "name": "Alberto Zaccagni",
+      "url": "https://github.com/lazywithclass"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/B2MSolutions/sawmill/issues"
+  },
+  "homepage": "https://github.com/B2MSolutions/sawmill",
+  "dependencies": {
+    "aws-sdk": "^2.0.21",
+    "lynx": "^0.2.0"
+  }
+}
