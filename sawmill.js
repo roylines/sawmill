@@ -33,15 +33,27 @@ function run(nextToken) {
     if (!nextToken) return wait(log.nextForwardToken, run);
 
     log.events.forEach(function(event) {
-      var splits = event.message.split(' '),
-        statuscode = splits[10],
-        haproxy = splits[4],
-        nodeserver = splits[8],
-        connections = splits[15];
-
-      if (!haproxy || haproxy.indexOf('haproxy') !== 0) {
+      process.stdout.write('z');
+      var splits = event.message.split(' ');
+      //find the haproxy index:
+      var haproxyindex = -1;
+      for(var i=0; i<splits.length; ++i) {
+        if(splits[i].substr(0, 7) === 'haproxy') {
+          haproxyindex = i;
+          break;
+        }
+      }
+      
+      if(haproxyindex === -1) {
         return;
       }
+
+      var statuscode = splits[haproxyindex + 6],
+        haproxy = splits[haproxyindex],
+        nodeserver = splits[haproxyindex + 4],
+        connections = splits[haproxyindex + 11];
+      
+      //console.log('status', { statuscode: statuscode, haproxy: haproxy, nodeserver: nodeserver, connections: connections, splits: splits });
 
       haproxy = haproxy.replace('[', '.').replace(']', '').replace(':', '');
 
