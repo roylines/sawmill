@@ -38,6 +38,8 @@ function run(nextToken) {
     if (!log) return wait(nextToken, run);
     if (!nextToken) return wait(log.nextForwardToken, run);
 
+    var requestCount = 0;
+
     log.events.forEach(function(event) {
       process.stdout.write('z');
       var splits = event.message.split(' ');
@@ -54,8 +56,8 @@ function run(nextToken) {
         return;
       }
 
-      metrics().increment([bucket('request.all')]);
-      
+      requestCount++;
+       
       var statuscode = splits[haproxyindex + 6],
       totalTimes = splits[haproxyindex + 5],
       haproxy = splits[haproxyindex],
@@ -93,13 +95,14 @@ function run(nextToken) {
         payload[bucket('totaltime.request')] = tq + '|ms';
         payload[bucket('totaltime.response')] = tr + '|ms';
         payload[bucket('totaltime.total')] = tt + '|ms';
-        console.log(payload)
         metrics().send(payload);
-
         process.stdout.write('buzz!');
       }
 
     });
+
+    metrics().gauge(bucket('request.all'), log.events.length);
+
     console.log('');
     wait(log.nextForwardToken, run);
   });
@@ -108,7 +111,7 @@ function run(nextToken) {
 function wait(token, cb) {
   setTimeout(function() {
     cb(token);
-  }, 500);
+  }, 1000);
 }
 
 console.log('starting the saws...');
