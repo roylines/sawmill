@@ -71,7 +71,7 @@ function run(nextToken) {
         var statusCodeHaproxyBucket = bucket(['statuscode', statuscode, haproxy].join('.'));
         var statusCodePrimaryHaproxyBucket = bucket(['statuscode', statuscode[0], 'all'].join('.'));
         metrics().increment([statusCodeBucket, statusCodeHaproxyBucket, statusCodePrimaryHaproxyBucket]);
-        //process.stdout.write('buzz!');
+        process.stdout.write('buzz!');
       }
 
       if (connections && connections.length) {
@@ -81,7 +81,7 @@ function run(nextToken) {
                              backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
-        //process.stdout.write('buzz!');
+        process.stdout.write('buzz!');
       }
 
       var totalTimes = totalTimes.split('/');
@@ -93,12 +93,11 @@ function run(nextToken) {
         payload[bucket('totaltime.request')] = tq + '|ms';
         payload[bucket('totaltime.response')] = tr + '|ms';
         payload[bucket('totaltime.total')] = tt + '|ms';
+        console.log(payload)
         metrics().send(payload);
 
-        //process.stdout.write('buzz!');
+        process.stdout.write('buzz!');
       }
-
-      metrics.close();
 
     });
     console.log('');
