@@ -7,7 +7,9 @@ var AWS = require('aws-sdk'),
 
 function metrics() {
   if (!lynxInstance) {
-    lynxInstance = new lynx(process.env.SAWMILL_STATSD_URL, 8125);
+    lynxInstance = new lynx(process.env.SAWMILL_STATSD_URL, 8125, {on_error: function(a, b) {
+      console.log(a, b);
+    }});
   }
   return lynxInstance;
 }
@@ -69,7 +71,7 @@ function run(nextToken) {
         var statusCodeHaproxyBucket = bucket(['statuscode', statuscode, haproxy].join('.'));
         var statusCodePrimaryHaproxyBucket = bucket(['statuscode', statuscode[0], 'all'].join('.'));
         metrics().increment([statusCodeBucket, statusCodeHaproxyBucket, statusCodePrimaryHaproxyBucket]);
-        process.stdout.write('buzz!');
+        //process.stdout.write('buzz!');
       }
 
       if (connections && connections.length) {
@@ -79,7 +81,7 @@ function run(nextToken) {
                              backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
-        process.stdout.write('buzz!');
+        //process.stdout.write('buzz!');
       }
 
       var totalTimes = totalTimes.split('/');
@@ -87,11 +89,16 @@ function run(nextToken) {
         var tq = totalTimes[0];  
         var tr = totalTimes[3];  
         var tt = totalTimes[4];  
-        metrics().set(bucket('totaltime.request'), +tq);
-        metrics().set(bucket('totaltime.response'), +tr);
-        metrics().set(bucket('totaltime.total'), +tt);
-        process.stdout.write('buzz!');
+        var payload = {};
+        payload[bucket('totaltime.request')] = tq + '|ms';
+        payload[bucket('totaltime.response')] = tr + '|ms';
+        payload[bucket('totaltime.total')] = tt + '|ms';
+        metrics().send(payload);
+
+        //process.stdout.write('buzz!');
       }
+
+      metrics.close();
 
     });
     console.log('');
