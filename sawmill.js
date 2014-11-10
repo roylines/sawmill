@@ -108,7 +108,7 @@ function run(nextToken) {
 function wait(token, cb) {
   setTimeout(function() {
     cb(token);
-  }, 3000);
+  }, 500);
 }
 
 console.log('starting the saws...');
