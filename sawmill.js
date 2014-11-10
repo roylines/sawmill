@@ -1,11 +1,15 @@
 #!/usr/local/bin/node
 
 var AWS = require('aws-sdk'),
-  cloudwatchlogs = new AWS.CloudWatchLogs(),
-  lynx = require('lynx');
+    cloudwatchlogs = new AWS.CloudWatchLogs(),
+    lynx = require('lynx'),
+    lynxInstance = undefined;
 
 function metrics() {
-  return new lynx(process.env.SAWMILL_STATSD_URL, 8125);
+  if (!lynxInstance) {
+    lynxInstance = new lynx(process.env.SAWMILL_STATSD_URL, 8125);
+  }
+  return lynxInstance;
 }
 
 function bucket(name) {
@@ -43,16 +47,19 @@ function run(nextToken) {
           break;
         }
       }
-      
+
       if(haproxyindex === -1) {
         return;
       }
 
-      var statuscode = splits[haproxyindex + 6],
-        haproxy = splits[haproxyindex],
-        nodeserver = splits[haproxyindex + 4],
-        connections = splits[haproxyindex + 11];
+      metrics().increment([bucket('request.all')]);
       
+      var statuscode = splits[haproxyindex + 6],
+      totalTimes = splits[haproxyindex + 5],
+      haproxy = splits[haproxyindex],
+      nodeserver = splits[haproxyindex + 4],
+      connections = splits[haproxyindex + 11];
+
       //console.log('status', { statuscode: statuscode, haproxy: haproxy, nodeserver: nodeserver, connections: connections, splits: splits });
 
       haproxy = haproxy.replace('[', '.').replace(']', '').replace(':', '');
@@ -68,12 +75,24 @@ function run(nextToken) {
       if (connections && connections.length) {
         var frontendConnections = connections.split('/')[1],
           backendConnections = connections.split('/')[2],
-          frontendConnectionsBucket = bucket('connections.frontend.all'),
-          backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
+                             frontendConnectionsBucket = bucket('connections.frontend.all'),
+                             backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
         process.stdout.write('buzz!');
       }
+
+      var totalTimes = totalTimes.split('/');
+      if (totalTimes && totalTimes.length === 5) {
+        var tq = totalTimes[0];  
+        var tr = totalTimes[3];  
+        var tt = totalTimes[4];  
+        metrics().set(bucket('totaltime.request'), +tq);
+        metrics().set(bucket('totaltime.response'), +tr);
+        metrics().set(bucket('totaltime.total'), +tt);
+        process.stdout.write('buzz!');
+      }
+
     });
     console.log('');
     wait(log.nextForwardToken, run);
