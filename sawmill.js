@@ -101,7 +101,8 @@ function run(nextToken) {
 
     });
 
-    metrics().gauge(bucket('request.all'), log.events.length / 10);
+    var requestsPerSecond = log.events.length / 10;
+    metrics().gauge(bucket('request.all'), requestsPerSecond);
 
     console.log('');
     wait(log.nextForwardToken, run);
