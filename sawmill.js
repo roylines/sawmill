@@ -101,7 +101,7 @@ function run(nextToken) {
 
     });
 
-    metrics().gauge(bucket('request.all'), log.events.length);
+    metrics().gauge(bucket('request.all'), log.events.length / 3);
 
     console.log('');
     wait(log.nextForwardToken, run);
@@ -111,7 +111,7 @@ function run(nextToken) {
 function wait(token, cb) {
   setTimeout(function() {
     cb(token);
-  }, 1000);
+  }, 3000);
 }
 
 console.log('starting the saws...');
