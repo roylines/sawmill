@@ -40,6 +40,22 @@ function run(nextToken) {
 
     var requestCount = 0;
 
+    var statusCounts = {
+    };
+
+    //reset the counts
+    _.keys(statusCounts).forEach(k) {
+      statusCounts[k] = 0;
+    }
+
+    function incStatusCode(code) {
+      if(!statusCounts[code]) {
+        statusCounts[code] = 0;
+      }
+
+      statusCounts[code] = statusCounts[code] + 1;
+    }
+
     log.events.forEach(function(event) {
       process.stdout.write('z');
       var splits = event.message.split(' ');
@@ -69,10 +85,9 @@ function run(nextToken) {
       haproxy = haproxy.replace('[', '.').replace(']', '').replace(':', '');
 
       if (isNumber(statuscode)) {
-        var statusCodeBucket = bucket(['statuscode', statuscode, 'all'].join('.'));
-        var statusCodeHaproxyBucket = bucket(['statuscode', statuscode, haproxy].join('.'));
-        var statusCodePrimaryHaproxyBucket = bucket(['statuscode', statuscode[0], 'all'].join('.'));
-        metrics().increment([statusCodeBucket, statusCodeHaproxyBucket, statusCodePrimaryHaproxyBucket]);
+        incStatusCode(['statuscode', statuscode, 'all'].join('.'));
+        incStatusCode(['statuscode', statuscode, haproxy].join('.'));
+        incStatusCode(['statuscode', statuscode[0], 'all'].join('.'));
         process.stdout.write('buzz!');
       }
 
@@ -103,7 +118,13 @@ function run(nextToken) {
 
     var requestsPerSecond = log.events.length / 10;
     metrics().gauge(bucket('request.all'), requestsPerSecond);
-
+    _.keys(statusCounts).forEach(k) {
+      metrics().gauge(bucket(k), statusCounts[k]);
+      if(statusCounts[k] === 0) {
+        delete statusCounts[k];
+      }
+    }
+    
     console.log('');
     wait(log.nextForwardToken, run);
   });
