@@ -25,6 +25,8 @@ function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+var statusCounts = {};
+
 function run(nextToken) {
   var params = {
     logGroupName: '/var/log/haproxy.log',
@@ -42,7 +44,6 @@ function run(nextToken) {
 
     var requestCount = 0;
 
-    var statusCounts = {};
 
     //reset the counts
     _.keys(statusCounts).forEach(function(k) {
