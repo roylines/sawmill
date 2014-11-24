@@ -1,6 +1,7 @@
 #!/usr/local/bin/node
 
-var AWS = require('aws-sdk'),
+var _ = require('lodash'),
+  AWS = require('aws-sdk'),
   cloudwatchlogs = new AWS.CloudWatchLogs(),
   lynx = require('lynx'),
   lynxInstance = undefined;
