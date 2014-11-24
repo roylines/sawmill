@@ -32,7 +32,6 @@ function run(nextToken) {
     nextToken: nextToken
   };
 
-  process.stdout.write('chop!');
   cloudwatchlogs.getLogEvents(params, function(err, log) {
     if (err) {
       console.error('saw failure!', err);
@@ -59,7 +58,6 @@ function run(nextToken) {
     }
 
     log.events.forEach(function(event) {
-      process.stdout.write('z');
       var splits = event.message.split(' ');
       //find the haproxy index:
       var haproxyindex = -1;
