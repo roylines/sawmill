@@ -43,8 +43,6 @@ function run(nextToken) {
     if (!nextToken) return wait(log.nextForwardToken, run);
 
     var requestCount = 0;
-
-
     //reset the counts
     _.keys(statusCounts).forEach(function(k) {
       statusCounts[k] = 0;
@@ -121,9 +119,6 @@ function run(nextToken) {
     _.keys(statusCounts).forEach(function(k) {
       console.log(bucket(k), statusCounts[k]);
       metrics().gauge(bucket(k), statusCounts[k]);
-      if (statusCounts[k] === 0) {
-        delete statusCounts[k];
-      }
     });
 
     console.log('');
