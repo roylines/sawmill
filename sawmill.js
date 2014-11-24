@@ -1,15 +1,17 @@
 #!/usr/local/bin/node
 
 var AWS = require('aws-sdk'),
-    cloudwatchlogs = new AWS.CloudWatchLogs(),
-    lynx = require('lynx'),
-    lynxInstance = undefined;
+  cloudwatchlogs = new AWS.CloudWatchLogs(),
+  lynx = require('lynx'),
+  lynxInstance = undefined;
 
 function metrics() {
   if (!lynxInstance) {
-    lynxInstance = new lynx(process.env.SAWMILL_STATSD_URL, 8125, {on_error: function(a, b) {
-      console.log(a, b);
-    }});
+    lynxInstance = new lynx(process.env.SAWMILL_STATSD_URL, 8125, {
+      on_error: function(a, b) {
+        console.log(a, b);
+      }
+    });
   }
   return lynxInstance;
 }
@@ -31,7 +33,7 @@ function run(nextToken) {
 
   process.stdout.write('chop!');
   cloudwatchlogs.getLogEvents(params, function(err, log) {
-    if(err) {
+    if (err) {
       console.error('saw failure!', err);
     }
 
@@ -40,16 +42,15 @@ function run(nextToken) {
 
     var requestCount = 0;
 
-    var statusCounts = {
-    };
+    var statusCounts = {};
 
     //reset the counts
-    _.keys(statusCounts).forEach(k) {
+    _.keys(statusCounts).forEach(function(k) {
       statusCounts[k] = 0;
-    }
+    });
 
     function incStatusCode(code) {
-      if(!statusCounts[code]) {
+      if (!statusCounts[code]) {
         statusCounts[code] = 0;
       }
 
@@ -61,24 +62,24 @@ function run(nextToken) {
       var splits = event.message.split(' ');
       //find the haproxy index:
       var haproxyindex = -1;
-      for(var i=0; i<splits.length; ++i) {
-        if(splits[i].substr(0, 7) === 'haproxy') {
+      for (var i = 0; i < splits.length; ++i) {
+        if (splits[i].substr(0, 7) === 'haproxy') {
           haproxyindex = i;
           break;
         }
       }
 
-      if(haproxyindex === -1) {
+      if (haproxyindex === -1) {
         return;
       }
 
       requestCount++;
-       
+
       var statuscode = splits[haproxyindex + 6],
-      totalTimes = splits[haproxyindex + 5],
-      haproxy = splits[haproxyindex],
-      nodeserver = splits[haproxyindex + 4],
-      connections = splits[haproxyindex + 11];
+        totalTimes = splits[haproxyindex + 5],
+        haproxy = splits[haproxyindex],
+        nodeserver = splits[haproxyindex + 4],
+        connections = splits[haproxyindex + 11];
 
       //console.log('status', { statuscode: statuscode, haproxy: haproxy, nodeserver: nodeserver, connections: connections, splits: splits });
 
@@ -94,8 +95,8 @@ function run(nextToken) {
       if (connections && connections.length) {
         var frontendConnections = connections.split('/')[1],
           backendConnections = connections.split('/')[2],
-                             frontendConnectionsBucket = bucket('connections.frontend.all'),
-                             backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
+          frontendConnectionsBucket = bucket('connections.frontend.all'),
+          backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
         process.stdout.write('buzz!');
@@ -103,9 +104,9 @@ function run(nextToken) {
 
       var totalTimes = totalTimes.split('/');
       if (totalTimes && totalTimes.length === 5) {
-        var tq = totalTimes[0];  
-        var tr = totalTimes[3];  
-        var tt = totalTimes[4];  
+        var tq = totalTimes[0];
+        var tr = totalTimes[3];
+        var tt = totalTimes[4];
         var payload = {};
         payload[bucket('totaltime.request')] = tq + '|ms';
         payload[bucket('totaltime.response')] = tr + '|ms';
@@ -118,13 +119,13 @@ function run(nextToken) {
 
     var requestsPerSecond = log.events.length / 10;
     metrics().gauge(bucket('request.all'), requestsPerSecond);
-    _.keys(statusCounts).forEach(k) {
+    _.keys(statusCounts).forEach(function(k) {
       metrics().gauge(bucket(k), statusCounts[k]);
-      if(statusCounts[k] === 0) {
+      if (statusCounts[k] === 0) {
         delete statusCounts[k];
       }
-    }
-    
+    });
+
     console.log('');
     wait(log.nextForwardToken, run);
   });
