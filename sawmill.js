@@ -42,6 +42,8 @@ function run(nextToken) {
     if (!log) return wait(nextToken, run);
     if (!nextToken) return wait(log.nextForwardToken, run);
 
+    console.log('processing...', new Date());
+
     var requestCount = 0;
     //reset the counts
     _.keys(statusCounts).forEach(function(k) {
@@ -117,7 +119,10 @@ function run(nextToken) {
     metrics().gauge(bucket('request.all'), requestsPerSecond);
 
     _.keys(statusCounts).forEach(function(k) {
-      console.log(bucket(k), statusCounts[k]);
+      if (statusCounts[k] > 0) {        
+        console.log(bucket(k), statusCounts[k]);
+      }
+
       metrics().gauge(bucket(k), statusCounts[k]);
     });
 
