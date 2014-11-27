@@ -59,6 +59,11 @@ function run(nextToken) {
     }
 
     log.events.forEach(function(event) {
+      if(!event.message) {
+        console.error('no message on event', event);
+        return;
+      }
+
       var splits = event.message.split(' ');
       //find the haproxy index:
       var haproxyindex = -1;
@@ -69,7 +74,8 @@ function run(nextToken) {
         }
       }
 
-      if (haproxyindex === -1) {
+      if (haproxyindex === -1 || splits.length <= haproxyindex + 11) {
+        console.error('skipping, event has too few fields', event.message);
         return;
       }
 
