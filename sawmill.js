@@ -88,7 +88,7 @@ function run(nextToken) {
         nodeserver = splits[haproxyindex + 4],
         connections = splits[haproxyindex + 11];
 
-      var splitNodeServer = nodeserver.split['/'];
+      var splitNodeServer = nodeserver.split('/');
 
       var backend = splitNodeServer[0];
       var backendServer = splitNodeServer[1];
