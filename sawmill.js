@@ -17,7 +17,8 @@ function metrics() {
   return lynxInstance;
 }
 
-function bucket(name) {
+function bucket() {
+  var name = Array.prototype.slice.call(arguments).join('.');
   return [process.env.SAWMILL_STATSD_PREFIX, name].join('.');
 }
 
@@ -87,7 +88,10 @@ function run(nextToken) {
         nodeserver = splits[haproxyindex + 4],
         connections = splits[haproxyindex + 11];
 
-      //console.log('status', { statuscode: statuscode, haproxy: haproxy, nodeserver: nodeserver, connections: connections, splits: splits });
+      var splitNodeServer = nodeserver.split['/'];
+
+      var backend = splitNodeServer[0];
+      var backendServer = splitNodeServer[1];
 
       haproxy = haproxy.replace('[', '.').replace(']', '').replace(':', '');
 
@@ -101,7 +105,7 @@ function run(nextToken) {
         var frontendConnections = connections.split('/')[1],
           backendConnections = connections.split('/')[2],
           frontendConnectionsBucket = bucket('connections.frontend.all'),
-          backendConnectionsBucket = bucket(['connections.backend', nodeserver.replace('node-servers/', '')].join('.'));
+          backendConnectionsBucket = bucket('connections.backend', backendServer);
         metrics().gauge(frontendConnectionsBucket, +frontendConnections);
         metrics().gauge(backendConnectionsBucket, +backendConnections);
       }
@@ -112,6 +116,9 @@ function run(nextToken) {
         var tr = totalTimes[3];
         var tt = totalTimes[4];
         var payload = {};
+        payload[bucket(backend, 'totaltime.request')] = tq + '|ms';
+        payload[bucket(backend, 'totaltime.response')] = tr + '|ms';
+        payload[bucket(backend, 'totaltime.total')] = tt + '|ms';
         payload[bucket('totaltime.request')] = tq + '|ms';
         payload[bucket('totaltime.response')] = tr + '|ms';
         payload[bucket('totaltime.total')] = tt + '|ms';
