@@ -45,7 +45,6 @@ function run(nextToken) {
 
     console.log('processing...', new Date());
 
-    var requestCount = 0;
     //reset the counts
     _.keys(statusCounts).forEach(function(k) {
       statusCounts[k] = 0;
@@ -58,6 +57,10 @@ function run(nextToken) {
 
       statusCounts[code] = statusCounts[code] + 1;
     }
+
+    var requestCount = 0;
+    var minTime = 9007199254740992;
+    var maxTime = 0;
 
     log.events.forEach(function(event) {
       if(!event.message) {
@@ -81,6 +84,10 @@ function run(nextToken) {
       }
 
       requestCount++;
+      var raisedDate = new Date(event.message.substr(0, 15)).getTime();
+      minTime = Math.min(minTime, raisedDate);
+      maxTime = Math.max(maxTime, raisedDate);
+      //Dec 18 11:16:42
 
       var statuscode = splits[haproxyindex + 6],
         totalTimes = splits[haproxyindex + 5],
@@ -127,7 +134,8 @@ function run(nextToken) {
 
     });
 
-    var requestsPerSecond = log.events.length / 10;
+    var elapsedSeconds = Math.max(1, (maxTime - minTime) / 1000);
+    var requestsPerSecond = Math.round(requestCount / elapsedSeconds);
     console.log(bucket('request.all'), requestsPerSecond);
     metrics().gauge(bucket('request.all'), requestsPerSecond);
 
