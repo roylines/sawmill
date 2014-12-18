@@ -16,16 +16,13 @@
     "Statsd"
   ],
   "author": "B2M Solutions",
-  "contributors": [
-    {
-      "name": "Roy Lines",
-      "url": "https://github.com/roylines"
-    },
-    {
-      "name": "Alberto Zaccagni",
-      "url": "https://github.com/lazywithclass"
-    }
-  ],
+  "contributors": [{
+    "name": "Roy Lines",
+    "url": "https://github.com/roylines"
+  }, {
+    "name": "Alberto Zaccagni",
+    "url": "https://github.com/lazywithclass"
+  }],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/B2MSolutions/sawmill/issues"
@@ -35,5 +32,8 @@
     "aws-sdk": "^2.0.21",
     "lodash": "^2.4.1",
     "lynx": "^0.2.0"
+  },
+  "engines": {
+    "node": "0.10.34"
   }
 }
