@@ -147,7 +147,7 @@ function run(nextToken) {
       metrics().gauge(bucket(k), statusCounts[k]);
     });
 
-    console.log('');
+    console.log('.');
     wait(log.nextForwardToken, run);
   });
 }
