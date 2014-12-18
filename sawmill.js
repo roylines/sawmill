@@ -61,12 +61,20 @@ function run(nextToken) {
     var requestCount = 0;
     var minTime = 9007199254740992;
     var maxTime = 0;
+    var lastmessage = '';
 
     log.events.forEach(function(event) {
       if(!event.message) {
         console.error('no message on event', event);
         return;
       }
+
+      if(lastmessage === event.message) {
+        //duplicate, ignore it
+        return;
+      }
+
+      lastmessage = event.message;
 
       var splits = event.message.split(' ');
       //find the haproxy index:
