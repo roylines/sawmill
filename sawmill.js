@@ -98,7 +98,7 @@ function run(nextToken) {
 
       var totalTime = parsed.totalTime;
       var totalRequestTime = parsed.totalRequestTime;
-      var totalResponseTime = parsed.totalResonseTime;
+      var totalResponseTime = parsed.totalResponseTime;
 
       if (isNumber(statuscode)) {
         incStatusCode(['statuscode', statuscode, 'all'].join('.'));
@@ -116,12 +116,12 @@ function run(nextToken) {
 
       if (totalTime) {
         var payload = {};
-        payload[bucket(backend, 'totaltime.request')] = tq + '|ms';
-        payload[bucket(backend, 'totaltime.response')] = tr + '|ms';
-        payload[bucket(backend, 'totaltime.total')] = tt + '|ms';
-        payload[bucket('totaltime.request')] = tq + '|ms';
-        payload[bucket('totaltime.response')] = tr + '|ms';
-        payload[bucket('totaltime.total')] = tt + '|ms';
+        payload[bucket(backend, 'totaltime.request')] = totalRequestTime + '|ms';
+        payload[bucket(backend, 'totaltime.response')] = totalResponseTime + '|ms';
+        payload[bucket(backend, 'totaltime.total')] = totalTime + '|ms';
+        payload[bucket('totaltime.request')] = totalRequestTime + '|ms';
+        payload[bucket('totaltime.response')] = totalResponseTime + '|ms';
+        payload[bucket('totaltime.total')] = totalTime + '|ms';
         metrics().send(payload);
       }
 
