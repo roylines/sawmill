@@ -2,6 +2,9 @@
   "name": "sawmill",
   "version": "0.0.1",
   "description": "Cuts AWS logs into statsd pieces",
+  "scripts": {
+    "test": "mocha"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/B2MSolutions/sawmill.git"
@@ -16,13 +19,16 @@
     "Statsd"
   ],
   "author": "B2M Solutions",
-  "contributors": [{
-    "name": "Roy Lines",
-    "url": "https://github.com/roylines"
-  }, {
-    "name": "Alberto Zaccagni",
-    "url": "https://github.com/lazywithclass"
-  }],
+  "contributors": [
+    {
+      "name": "Roy Lines",
+      "url": "https://github.com/roylines"
+    },
+    {
+      "name": "Alberto Zaccagni",
+      "url": "https://github.com/lazywithclass"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/B2MSolutions/sawmill/issues"
@@ -30,10 +36,15 @@
   "homepage": "https://github.com/B2MSolutions/sawmill",
   "dependencies": {
     "aws-sdk": "^2.0.21",
+    "haproxy-log-parse": "^1.0.1",
     "lodash": "^2.4.1",
-    "lynx": "^0.2.0"
+    "lynx": "^0.2.0",
+    "mocha": "^2.1.0"
   },
   "engines": {
     "node": "0.10.33"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0"
   }
 }

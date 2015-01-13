@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# INSTALL
+# cd ~/src/sawmill/.git/hooks
+# ln -s ~/src/sawmill/git_hooks/pre-commit pre-commit
+
+set -e
+
+npm run-script test

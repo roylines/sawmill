@@ -76,39 +76,29 @@ function run(nextToken) {
 
       lastmessage = event.message;
 
-      var splits = event.message.split(' ');
-      //find the haproxy index:
-      var haproxyindex = -1;
-      for (var i = 0; i < splits.length; ++i) {
-        if (splits[i].substr(0, 7) === 'haproxy') {
-          haproxyindex = i;
-          break;
-        }
-      }
-
-      if (haproxyindex === -1 || splits.length <= haproxyindex + 11) {
-        console.error('skipping, event has too few fields', event.message);
+      var parsed = parseLine(lastmessage);
+      if (parsed.error) {
+        console.error(parsed.error, event);
         return;
       }
 
       requestCount++;
-      var raisedDate = new Date(event.message.substr(0, 15)).getTime();
-      minTime = Math.min(minTime, raisedDate);
-      maxTime = Math.max(maxTime, raisedDate);
-      //Dec 18 11:16:42
+      minTime = Math.min(minTime, parsed.date);
+      maxTime = Math.max(maxTime, parsed.date);
+      
+      var statuscode = parsed.statusCode;
+      var haproxy = parsed.haproxy;
+      var nodeserver = parsed.nodeserver;
 
-      var statuscode = splits[haproxyindex + 6],
-        totalTimes = splits[haproxyindex + 5],
-        haproxy = splits[haproxyindex],
-        nodeserver = splits[haproxyindex + 4],
-        connections = splits[haproxyindex + 11];
+      var frontendConnections = parsed.frontendConnections;
+      var backendConnections = parsed.backendConnections;
 
-      var splitNodeServer = nodeserver.split('/');
+      var backend = parsed.backend;
+      var backendServer = parsed.backendServer;
 
-      var backend = splitNodeServer[0];
-      var backendServer = splitNodeServer[1];
-
-      haproxy = haproxy.replace('[', '.').replace(']', '').replace(':', '');
+      var totalTime = parsed.totalTime;
+      var totalRequestTime = parsed.totalRequestTime;
+      var totalResponseTime = parsed.totalResonseTime;
 
       if (isNumber(statuscode)) {
         incStatusCode(['statuscode', statuscode, 'all'].join('.'));
@@ -116,20 +106,15 @@ function run(nextToken) {
         incStatusCode(['statuscode', statuscode[0], 'all'].join('.'));
       }
 
-      if (connections && connections.length) {
-        var frontendConnections = connections.split('/')[1],
-          backendConnections = connections.split('/')[2],
-          frontendConnectionsBucket = bucket('connections.frontend.all'),
-          backendConnectionsBucket = bucket('connections.backend', backendServer);
-        metrics().gauge(frontendConnectionsBucket, +frontendConnections);
-        metrics().gauge(backendConnectionsBucket, +backendConnections);
+      if (frontendConnections) {
+        metrics().gauge(bucket('connections.frontend.all'), +frontendConnections);
       }
 
-      var totalTimes = totalTimes.split('/');
-      if (totalTimes && totalTimes.length === 5) {
-        var tq = totalTimes[0];
-        var tr = totalTimes[3];
-        var tt = totalTimes[4];
+      if (backendConnections) {
+        metrics().gauge(bucket('connections.backend', backendServer), +backendConnections);
+      }
+
+      if (totalTime) {
         var payload = {};
         payload[bucket(backend, 'totaltime.request')] = tq + '|ms';
         payload[bucket(backend, 'totaltime.response')] = tr + '|ms';
