@@ -4,7 +4,8 @@ var _ = require('lodash'),
   AWS = require('aws-sdk'),
   cloudwatchlogs = new AWS.CloudWatchLogs(),
   lynx = require('lynx'),
-  lynxInstance = undefined;
+  lynxInstance = undefined,
+  parser = require('./parser');
 
 function metrics() {
   if (!lynxInstance) {
@@ -76,7 +77,7 @@ function run(nextToken) {
 
       lastmessage = event.message;
 
-      var parsed = parseLine(lastmessage);
+      var parsed = parser.parseLine(lastmessage);
       if (parsed.error) {
         console.error(parsed.error, event);
         return;
