@@ -75,6 +75,25 @@ describe('parseLine', function () {
     expect(result).to.deep.equal(expected);
   });
   
+  it('should handle datw with spaces', function () {
+    var line =  "Jan  3 10:21:38  localhost  haproxy[29285]:  78.54.251.74:53867   [13/Jan/2015:10:20:36.708]  www-https~  node-servers/node1-10.28.183.88  60988/0/2/384/61374  200  168 - - ---- 10/9/2/0/0 0/0  \"POST /api/1/traffic  HTTP/1.1\"";
+    var expected = {
+      date: new Date('Jan 3 10:21:38').getTime(),
+      statusCode: "200",
+      haproxy: "haproxy.29285",
+      nodeserver: "node-servers/node1-10.28.183.88",
+      frontendConnections: "9",
+      backendConnections: "2",
+      backend: "node-servers",
+      backendServer: "node1",
+      totalTime: "61374",
+      totalRequestTime: "60988",
+      totalResponseTime: "384"
+    };
+    var result = parser.parseLine(line);
+    expect(result).to.deep.equal(expected);
+  });
+
   it('should return error when there is no valid log', function () {
     var line =  "Jan 13 10:22:01 ip-10-138-42-169 CROND[13348]: (root) CMD (source /root/.bashrc; cd /root/elemez-loadbalancer-config; ./discover >> /var/log/node-servers-discover.log 2>&1)";
     var expected = {
