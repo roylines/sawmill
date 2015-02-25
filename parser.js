@@ -20,6 +20,10 @@ parser.parseLine = function(message) {
   parsed.totalResponseTime = results.tr.toString();
   parsed.totalTime = results.tt.toString();
 
+  if (results.headers && results.headers !== 'undefined') {
+    parsed.headers = results.headers;
+  }
+
   return parsed;
 };
 
@@ -53,6 +57,7 @@ var fields = {
     , 'retries' : parseInt
     , 'srv_queue' : parseInt
     , 'backend_queue' : parseInt
+    , 'headers' : String
     , 'method' : String
     , 'request' : String
     , 'version' : String
@@ -61,7 +66,7 @@ var fields = {
 var keys = Object.keys(fields);
 
 function _parseLine (str) {
-    var reg = /^(\w+\s+\d+\s+\S+)\s+(\S+)\s+(\S+)\[(\d+)\]:\s+(\S+):(\d+)\s+\[(\S+)\]\s+(\S+)\s+(\S+)\/(\S+)\s+(\S+)\/(\S+)\/(\S+)\/(\S+)\/(\S+)\s+(\S+)\s+(\S+) *(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\/(\S+)\/(\S+)\/(\S+)\/(\S+)\s+(\S+)\/(\S+)\s+"(\S+)\s+([^"]+)\s+(\S+)" *$/gi
+  var reg = /^(\w+\s+\d+\s+\S+)\s+(\S+)\s+(\S+)\[(\d+)\]:\s+(\S+):(\d+)\s+\[(\S+)\]\s+(\S+)\s+(\S+)\/(\S+)\s+(\S+)\/(\S+)\/(\S+)\/(\S+)\/(\S+)\s+(\S+)\s+(\S+) *(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\/(\S+)\/(\S+)\/(\S+)\/(\S+)\s+(\S+)\/(\S+)\s+({.*})?\s?"(\S+)\s+([^"]+)\s+(\S+)" *$/gi
         , obj
         , matches
         ;
